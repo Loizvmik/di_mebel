@@ -14,7 +14,7 @@ async def read_furniture(db: AsyncSession = Depends(get_db)):
             .outerjoin(ProductImage, Furniture.id == ProductImage.furniture_id)
             .outerjoin(Image, ProductImage.image_id == Image.id)
         )
-        result = await db.execute(query)
+        result = db.execute(query)
         furniture_list = result.scalars().all()
 
         furniture_data = []

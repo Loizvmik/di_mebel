@@ -1,9 +1,6 @@
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from database import Base
-
 
 class Furniture(Base):
     __tablename__ = 'furniture'
@@ -13,6 +10,9 @@ class Furniture(Base):
     characteristic = Column(String(500), nullable=True)
     name = Column(String(255), nullable=False)
     category = Column(String(255), nullable=False)
+
+    # ✅ Добавляем связь с ProductImage
+    images = relationship("ProductImage", back_populates="furniture", lazy="joined")
 
 class Image(Base):
     __tablename__ = "image"
@@ -26,6 +26,7 @@ class ProductImage(Base):
     id = Column(Integer, primary_key=True, index=True)
     furniture_id = Column(Integer, ForeignKey("furniture.id"))
     image_id = Column(Integer, ForeignKey("image.id"))
+
     furniture = relationship("Furniture", back_populates="images")
     image = relationship("Image")
 
