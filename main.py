@@ -2,11 +2,9 @@ from fastapi import FastAPI
 import uvicorn
 
 # Импортируем engine, чтобы можно было вызвать create_all
-from database import engine
-# Предположим, что все модели наследуют Base из models.py
-from src.furniture.models import Base
+from database import engine,Base
 # Роутер с эндпоинтами
-from src.furniture.router import read_furniture 
+from src.furniture.router import router 
 
 # Создаём таблицы (если их нет) при старте
 Base.metadata.create_all(bind=engine)
@@ -14,8 +12,8 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 # Регистрируем роутеры
-app.include_router(read_furniture)
+app.include_router(router)
 
 # Точка входа при локальном запуске (без docker)
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=80, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

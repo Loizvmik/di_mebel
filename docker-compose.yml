@@ -8,8 +8,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: mysecretpassword
       MYSQL_DATABASE: di_mebel_db
-      MYSQL_USER: di_user
-      MYSQL_PASSWORD: di_password
+      MYSQL_USER: admin_di_mebel
+      MYSQL_PASSWORD: admin
     ports:
       - "3306:3306"
     volumes:
@@ -19,7 +19,7 @@ services:
     build: .
     container_name: di_mebel_app
     ports:
-      - "8000:80"
+      - "8000:8000"
     depends_on:
       - db
     environment:
