@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавление мебели</title>
+</head>
+<body>
+    <h2>Добавить мебель</h2>
+    <form id="furnitureForm">
+        <label>Название:</label>
+        <input type="text" id="name" required><br><br>
+
+        <label>Цена:</label>
+        <input type="number" id="price" required><br><br>
+
+        <label>Характеристика:</label>
+        <input type="text" id="characteristic"><br><br>
+
+        <label>Категория:</label>
+        <input type="text" id="category" required><br><br>
+
+        <label>ID изображений (через запятую):</label>
+        <input type="text" id="images"><br><br>
+
+        <button type="submit">Добавить мебель</button>
+    </form>
+
+    <h3 id="responseMessage"></h3>
+
+    <script>
+        document.getElementById("furnitureForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById("name").value;
+            const price = document.getElementById("price").value;
+            const characteristic = document.getElementById("characteristic").value;
+            const category = document.getElementById("category").value;
+            const images = document.getElementById("images").value
+                .split(',')
+                .map(id => parseInt(id.trim()))
+                .filter(id => !isNaN(id));
+
+            const data = {
+                name: name,
+                price: price,
+                characteristic: characteristic,
+                category: category,
+                images: images
+            };
+
+            try {
+                const response = await fetch("http://localhost:8000/api/furniture/create", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    document.getElementById("responseMessage").textContent = "✅ Мебель успешно добавлена!";
+                    console.log("Добавлено:", result);
+                } else {
+                    document.getElementById("responseMessage").textContent = "❌ Ошибка: " + (result.error || "Неизвестная ошибка");
+                    console.error("Ошибка:", result);
+                }
+            } catch (error) {
+                document.getElementById("responseMessage").textContent = "❌ Ошибка соединения!";
+                console.error("Ошибка сети:", error);
+            }
+        });
+    </script>
+</body>
+</html>

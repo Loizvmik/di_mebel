@@ -1,32 +1,17 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship
-from database import Base
+from django.db import models
 
-class Furniture(Base):
-    __tablename__ = 'furniture'
+class Furniture(models.Model):
+    name = models.CharField(max_length=255)
+    price = models.IntegerField()
+    characteristic = models.TextField(null=True, blank=True)
+    category = models.CharField(max_length=255)
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    price = Column(Integer, nullable=False)
-    characteristic = Column(String(500), nullable=True)
-    name = Column(String(255), nullable=False)
-    category = Column(String(255), nullable=False)
+class Image(models.Model):
+    name = models.CharField(max_length=255,null=True,blank=True)
+    image = models.ImageField(upload_to='images/')
+    category = models.CharField(max_length=255, null=True,blank=True)
 
-    # ✅ Добавляем связь с ProductImage
-    images = relationship("ProductImage", back_populates="furniture", lazy="joined")
-
-class Image(Base):
-    __tablename__ = "image"
-
-    id = Column(Integer, primary_key=True, index=True)
-    image_url = Column(String(255), nullable=False)
-
-class ProductImage(Base):
-    __tablename__ = "product_images"
-
-    id = Column(Integer, primary_key=True, index=True)
-    furniture_id = Column(Integer, ForeignKey("furniture.id"))
-    image_id = Column(Integer, ForeignKey("image.id"))
-
-    furniture = relationship("Furniture", back_populates="images")
-    image = relationship("Image")
+class ProductImage(models.Model):
+    furniture = models.ForeignKey(Furniture, on_delete=models.CASCADE, related_name='images')
+    image = models.ForeignKey(Image, on_delete=models.CASCADE)
 
