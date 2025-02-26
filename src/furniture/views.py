@@ -2,7 +2,7 @@ from django.db import transaction
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Furniture, Image, ProductImage
+from .models import Furniture, Image
 from django.http import JsonResponse
 from .models import Image
 
@@ -86,6 +86,5 @@ def image_list_slider(request):
     return JsonResponse(data, safe=False)
 
 
-
-    
-    
+@api_view(['GET'])
+def furniture_list

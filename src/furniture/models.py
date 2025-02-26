@@ -11,7 +11,3 @@ class Image(models.Model):
     image = models.ImageField(upload_to='images/')
     category = models.CharField(max_length=255, null=True,blank=True)
 
-class ProductImage(models.Model):
-    furniture = models.ForeignKey(Furniture, on_delete=models.CASCADE, related_name='images')
-    image = models.ForeignKey(Image, on_delete=models.CASCADE)
-
