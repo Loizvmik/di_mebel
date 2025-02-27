@@ -84,7 +84,3 @@ def image_list_slider(request):
             "category": img.category,
         })
     return JsonResponse(data, safe=False)
-
-
-@api_view(['GET'])
-def furniture_list

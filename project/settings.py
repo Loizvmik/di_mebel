@@ -7,7 +7,7 @@ from django.urls import path
 import os
 from pathlib import Path
 
-import os
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -97,7 +97,7 @@ DATABASES = {
         'USER': os.getenv('DB_USER', 'admin_di_mebel'),
         'PASSWORD': os.getenv('DB_PASS', 'admin'),
         'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': '3306',
+        'PORT': os.getenv('DB_PORT', '3306'),
         'OPTIONS': {
             'charset': 'utf8mb4',
         },

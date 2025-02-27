@@ -5,13 +5,14 @@ services:
     image: mysql:8.0
     container_name: di_mebel_mysql
     restart: always
+    env_file: .env
     environment:
       MYSQL_ROOT_PASSWORD: mysecretpassword
-      MYSQL_DATABASE: di_mebel_db
-      MYSQL_USER: admin_di_mebel
-      MYSQL_PASSWORD: admin
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
     ports:
-      - "3306:3306"
+      - "${DB_PORT:-3306}:3306"
     volumes:
       - db_data:/var/lib/mysql
 
@@ -22,11 +23,9 @@ services:
       - "8000:8000"
     depends_on:
       - db
+    env_file: .env
     environment:
-      DB_HOST: db
-      DB_NAME: di_mebel_db
-      DB_USER: admin_di_mebel
-      DB_PASS: admin
+      DB_HOST: db  # Переопределяем DB_HOST для внутренней сети Docker
     volumes:
       - .:/app
 
