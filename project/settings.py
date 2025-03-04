@@ -67,7 +67,7 @@ DATABASES = {
         'NAME': os.getenv('DB_NAME', 'di_mebel_db'),
         'USER': os.getenv('DB_USER', 'admin_di_mebel'),
         'PASSWORD': os.getenv('DB_PASS', 'admin'),
-        'HOST': os.getenv('DB_HOST', 'di_mebel_db'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),#чтобы тестить контейнер меняйте на "di_mebel_db" и в .env HOST тоже
         'PORT': os.getenv('DB_PORT', '3306'),
         'OPTIONS': {
             'charset': 'utf8mb4',

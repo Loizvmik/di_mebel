@@ -15,8 +15,6 @@ def create_furniture(request):
             price = request.data.get("price")
             characteristic = request.data.get("characteristic")
             category = request.data.get("category")
-            images = request.data.get("images", [])
-
             # Проверка обязательных полей
             if not name or not price or not category:
                 return Response(
@@ -31,18 +29,6 @@ def create_furniture(request):
                 characteristic=characteristic,
                 category=category
             )
-
-            # Привязываем изображения
-            for image_id in images:
-                try:
-                    image = Image.objects.get(id=image_id)
-                    ProductImage.objects.create(furniture=furniture, image=image)
-                except Image.DoesNotExist:
-                    return Response(
-                        {"error": f"Изображение с ID {image_id} не найдено"},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-
             # Возвращаем JSON-ответ об успешном создании
             return Response(
                 {"message": "Мебель успешно добавлена", "furniture_id": furniture.id},
@@ -54,7 +40,6 @@ def create_furniture(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
-
 @api_view(['POST'])
 def upload_image(request):
     # Проверяем, что файл передан
@@ -62,25 +47,16 @@ def upload_image(request):
         return Response({'error': 'Файл изображения не предоставлен'}, status=status.HTTP_400_BAD_REQUEST)
     
     image_file = request.FILES['image']
-    
+    furniture_id = request.data.get('furniture_id')
+    if not furniture_id:
+        return Response({'error': 'Необходимо выбрать фотографию'}, status=status.HTTP_400_BAD_REQUEST)
     try:
         # Создаем запись в модели Image. Поле image настроено с upload_to='images/'
-        image_instance = Image.objects.create(image=image_file)
+        image_instance = Image.objects.create(image=image_file,furniture_id=furniture_id)
         return Response({
             'message': 'Изображение успешно загружено',
-            'image_id': image_instance.id
+            'image_id': image_instance.id,
+            'furniture_id': furniture_id
         }, status=status.HTTP_201_CREATED)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-@api_view(['GET'])
-def image_list_slider(request):
-    images = Image.objects.filter(category='slider')
-    data = []
-    for img in images:
-        data.append({
-            "name": img.name,
-            "image_url": img.image.url,  # Здесь получаем путь к файлу
-            "category": img.category,
-        })
-    return JsonResponse(data, safe=False)
