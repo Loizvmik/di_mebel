@@ -2,9 +2,9 @@ from django.db import transaction
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Furniture, Image
+from .models import Furniture, Image, Color
 from django.http import JsonResponse
-from .models import Image
+
 
 @api_view(['POST'])
 def create_furniture(request):
@@ -61,31 +61,51 @@ def upload_image(request):
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 @api_view(['GET'])
 def get_furniture(request):
-    # Получение списка всей мебели
-    furnitures = Furniture.objects.all()
-    data = [
-        {
-            "id": furniture.id,
-            "name": furniture.name,
-            "price": furniture.price,
-            "characteristic": furniture.characteristic,
-            "category": furniture.category,
-            "images": [
-                {
-                    "id": img.id,
-                    "name": img.name,
-                    "image": img.image.url if img.image else None,
-                    "category": img.category
-                }
-                for img in furniture.images.all()
-            ]
-        }
-        for furniture in furnitures
-    ]
-    return JsonResponse(data, safe=False)
+    try:
+        # Получение списка всей мебели
+        furnitures = Furniture.objects.all()
 
+        # Проверка на наличие данных
+        if not furnitures.exists():
+            return JsonResponse(
+                {"message": "Мебель не найдена в базе данных"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        data = [
+            {
+                "id": furniture.id,
+                "name": furniture.name,
+                "price": furniture.price,
+                "characteristic": furniture.characteristic,
+                "category": furniture.category,
+                "images": [
+                    {
+                        "id": img.id,
+                        "name": img.name,
+                        "image": img.image.url if img.image and hasattr(img.image, 'url') else None,
+                        "category": img.category
+                    }
+                    for img in furniture.images.all()
+                ]
+            }
+            for furniture in furnitures
+        ]
+        return JsonResponse(data, safe=False)
+
+    except Furniture.DoesNotExist:
+        return JsonResponse(
+            {"error": "Мебель не найдена"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        return JsonResponse(
+            {"error": f"Произошла ошибка при получении списка мебели: {str(e)}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 @api_view(['GET'])
 def get_furniture_by_id(request, forniture_id):
     try:
@@ -302,5 +322,83 @@ def update_furniture_images(request, furniture_id):
     except Exception as e:
         return JsonResponse(
             {"error": f"Произошла ошибка при обновлении изображений: {str(e)}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+@api_view(['GET'])
+def get_colors(request):
+    try:
+        colors = Color.objects.all()
+        data = [
+            {
+                "id": color.id,
+                "url": color.url,
+                "furnitures":[
+                    {
+                        "id": furniture.id,
+                        "name": furniture.name,
+                        "price": furniture.price,
+                        "characteristic": furniture.characteristic,
+                        "category": furniture.category,
+                        "images": [
+                            {
+                                "id": img.id,
+                                "name": img.name,
+                                "image": img.image.url if img.image else None,
+                                "category": img.category
+                            }
+                            for img in furniture.images.all()
+                        ]
+                    }
+                    for furniture in color.furnitures.all()
+                ]
+            }
+            for color in colors
+        ]
+        return JsonResponse(data, safe=False)
+
+    except Exception as e:
+        return JsonResponse(
+            {"error": f"Произошла ошибка при получении цветов: {str(e)}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+@api_view(['POST'])
+def create_color(request):
+    try:
+        with transaction.atomic():
+            url = request.data.get("url")
+            if not url:
+                return Response(
+                    {"error": "Необходимо передать url"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            color = Color.objects.create(
+                url = url
+            )
+            return JsonResponse(
+                {"message": "Цвет успешно создан", "color_id": color.id},
+                status=status.HTTP_201_CREATED
+            )
+    except Exception as e:
+        return JsonResponse(
+            {"error": f"Произошла ошибка при создании цвета: {str(e)}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+@api_view(['DELETE'])
+def delete_color(request, color_id):
+    try:
+        color = Color.objects.get(id = color_id)
+        color.delete()
+        return JsonResponse(
+            {"message": "Цвет успешно удален", "deleted_color_id": color_id},
+            status=status.HTTP_200_OK)
+    except Color.DoesNotExist:
+        return JsonResponse({"error": "Цвет не найден"}, status=status.HTTP_404_NOT_FOUND)
+
+    except Exception as e:
+        return JsonResponse(
+            {"error": f"Произошла ошибка при удалении цвета: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )

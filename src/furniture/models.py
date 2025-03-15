@@ -17,3 +17,14 @@ class Image(models.Model):
         null=True,
         blank=True)
 
+class Color(models.Model):
+    url = models.URLField(max_length=255, null=True, blank=True)
+    furnitures = models.ManyToManyField(
+        'Furniture',
+        through='FurnitureColor',
+        related_name='colors'
+    )
+class FurnitureColor(models.Model):
+    furniture = models.ForeignKey('Furniture', on_delete=models.CASCADE)
+    color = models.ForeignKey('Color', on_delete=models.CASCADE)
+
