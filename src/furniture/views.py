@@ -151,7 +151,7 @@ def update_furniture_data(request, furniture_id):
             "id": furniture.id,
             "name": furniture.name,
             "price": furniture.price,
-            "category": furniture.category
+            "category": furniture.category,
         }
 
         return JsonResponse(
@@ -304,3 +304,6 @@ def update_furniture_images(request, furniture_id):
             {"error": f"Произошла ошибка при обновлении изображений: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+
+
