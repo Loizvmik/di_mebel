@@ -7,6 +7,7 @@ class ImageInline(admin.TabularInline):
     extra = 1
 
 
+
 class FurnitureColorInline(admin.TabularInline):
     model = FurnitureColor
     extra = 1
@@ -18,11 +19,14 @@ class FurnitureColorInline(admin.TabularInline):
 class FurnitureAdmin(admin.ModelAdmin):
     list_display = ('name', 'price', 'category')
     inlines = [ImageInline, FurnitureColorInline]
+    filter_horizontal = ('colors',)  # для удобного выбора цветов
+
 
 
 @admin.register(Image)
 class ImageAdmin(admin.ModelAdmin):
     list_display = ('id', 'image')
+
 
 
 @admin.register(Color)
@@ -35,3 +39,4 @@ class ColorAdmin(admin.ModelAdmin):
         return obj.furnitures.count()
 
     get_furniture_count.short_description = 'Количество мебели'
+

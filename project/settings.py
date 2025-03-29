@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'src.furniture',
     'src.homepage',
     'src.homepage.team'
+    'src.vacancy',
 ]
 
 CORS_ALLOWED_ORIGINS = [

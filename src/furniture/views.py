@@ -171,7 +171,7 @@ def update_furniture_data(request, furniture_id):
             "id": furniture.id,
             "name": furniture.name,
             "price": furniture.price,
-            "category": furniture.category
+            "category": furniture.category,
         }
 
         return JsonResponse(
@@ -325,6 +325,7 @@ def update_furniture_images(request, furniture_id):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
+
 @api_view(['GET'])
 def get_colors(request):
     try:
@@ -447,3 +448,4 @@ def get_color_by_id(request, color_id):
             {"error": f"Произошла ошибка при получении цвета: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
