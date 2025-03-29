@@ -1,16 +1,15 @@
 from django.contrib import admin
-from .models import Furniture, Image
-
-
-class ImageInline(admin.TabularInline):  # или admin.StackedInline, если предпочитаете другой вид отображения
-    model = Image
-    extra = 1
+from .models import Furniture, Color, Image
 
 @admin.register(Furniture)
 class FurnitureAdmin(admin.ModelAdmin):
     list_display = ('name', 'price', 'category')
-    inlines = [ImageInline]
+    filter_horizontal = ('colors',)  # для удобного выбора цветов
+
+@admin.register(Color)
+class ColorAdmin(admin.ModelAdmin):
+    list_display = ('name', 'image')
+
 @admin.register(Image)
 class ImageAdmin(admin.ModelAdmin):
     list_display = ('id', 'image')
-
