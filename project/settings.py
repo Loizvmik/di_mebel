@@ -33,7 +33,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'src.furniture',
-    'src.homepage'
+    'src.homepage',
+    'src.homepage.team'
 ]
 
 CORS_ALLOWED_ORIGINS = [

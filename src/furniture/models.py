@@ -19,6 +19,7 @@ class Image(models.Model):
 
 class Color(models.Model):
     url = models.URLField(max_length=255, null=True, blank=True)
+    name = models.CharField(max_length=255, null=True, blank=True)
     furnitures = models.ManyToManyField(
         'Furniture',
         through='FurnitureColor',

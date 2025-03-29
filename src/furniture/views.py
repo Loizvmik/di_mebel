@@ -333,6 +333,7 @@ def get_colors(request):
             {
                 "id": color.id,
                 "url": color.url,
+                "name": color.name,
                 "furnitures":[
                     {
                         "id": furniture.id,
@@ -368,16 +369,23 @@ def create_color(request):
     try:
         with transaction.atomic():
             url = request.data.get("url")
+            name = request.data.get("name")
             if not url:
                 return Response(
                     {"error": "Необходимо передать url"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+            if not name:
+                return Response(
+                    {"error": "Необходимо передать name"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             color = Color.objects.create(
-                url = url
+                url = url,
+                name= name
             )
             return JsonResponse(
-                {"message": "Цвет успешно создан", "color_id": color.id},
+                {"message": "Цвет успешно создан", "color_id": color.id, "name": color.name},
                 status=status.HTTP_201_CREATED
             )
     except Exception as e:
@@ -392,13 +400,50 @@ def delete_color(request, color_id):
         color = Color.objects.get(id = color_id)
         color.delete()
         return JsonResponse(
-            {"message": "Цвет успешно удален", "deleted_color_id": color_id},
+            {"message": "Цвет успешно удален", "deleted_color_id": color_id, "name": color.name},
             status=status.HTTP_200_OK)
+
     except Color.DoesNotExist:
         return JsonResponse({"error": "Цвет не найден"}, status=status.HTTP_404_NOT_FOUND)
 
     except Exception as e:
         return JsonResponse(
             {"error": f"Произошла ошибка при удалении цвета: {str(e)}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+@api_view(['GET'])
+def get_color_by_id(request, color_id):
+    try:
+        color = Color.objects.get(id=color_id)
+        data = {
+            "id": color.id,
+            "url": color.url,
+            "name": color.name,
+            "furnitures": [
+                {
+                    "id": furniture.id,
+                    "name": furniture.name,
+                    "price": furniture.price,
+                    "characteristic": furniture.characteristic,
+                    "category": furniture.category,
+                    "images": [
+                        {
+                            "id": img.id,
+                            "name": img.name,
+                            "image": img.image.url if img.image and hasattr(img.image, 'url') else None,
+                            "category": img.category
+                        }
+                        for img in furniture.images.all()
+                    ]
+                }
+                for furniture in color.furnitures.all()
+            ]
+        }
+        return JsonResponse(data, safe=False)
+    except Color.DoesNotExist:
+        return JsonResponse({"error": "Цвет не найден"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return JsonResponse(
+            {"error": f"Произошла ошибка при получении цвета: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
