@@ -1,6 +1,6 @@
-from django.urls import path
-from .views import homepage 
+from django.urls import path, include
 
 urlpatterns = [
-    path('', homepage, name='homepage'),
+    path('team/', include('src.homepage.team.urls')),
+    # Другие URL-пути для homepage
 ]
