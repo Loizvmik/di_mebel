@@ -5,6 +5,7 @@ from rest_framework import status
 from .models import Furniture, Image
 from django.http import JsonResponse
 from .models import Image
+from django.db.models import Prefetch
 
 @api_view(['POST'])
 def create_furniture(request):
@@ -61,35 +62,57 @@ def upload_image(request):
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+
+from django.http import JsonResponse
+from rest_framework.decorators import api_view
+from django.db.models import Prefetch
+from .models import Furniture, Image
+
+
 @api_view(['GET'])
 def get_furniture(request):
-    # Получение списка всей мебели
-    furnitures = Furniture.objects.all()
+    category = request.GET.get('category')
+
+    # Базовый запрос с оптимизацией
+    queryset = Furniture.objects.prefetch_related(
+        Prefetch('images', queryset=Image.objects.all())
+    )
+
+    # Применяем фильтры
+    if category:
+        queryset = queryset.filter(category=category)
+    else:
+        # Если категория не указана - показываем все товары
+        queryset = queryset.all()
+
+    # Формируем ответ
     data = [
         {
-            "id": furniture.id,
-            "name": furniture.name,
-            "price": furniture.price,
-            "characteristic": furniture.characteristic,
-            "category": furniture.category,
+            "id": item.id,
+            "name": item.name,
+            "price": item.price,
+            "characteristic": item.characteristic,
+            "category": item.category,
             "images": [
                 {
                     "id": img.id,
                     "name": img.name,
-                    "image": img.image.url if img.image else None,
+                    "url": request.build_absolute_uri(img.image.url) if img.image else None,
                     "category": img.category
                 }
-                for img in furniture.images.all()
+                for img in item.images.all()
             ]
         }
-        for furniture in furnitures
+        for item in queryset
     ]
+
     return JsonResponse(data, safe=False)
 
 @api_view(['GET'])
-def get_furniture_by_id(request, forniture_id):
+def get_furniture_by_id(request, furniture_id):
     try:
-        furniture = Furniture.objects.get(id=forniture_id)
+        furniture = Furniture.objects.get(id=furniture_id)
         data = {
             "id": furniture.id,
             "name": furniture.name,
